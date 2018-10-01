@@ -1,0 +1,18 @@
+[package]
+name = "nature_retry"
+version = "0.0.1"
+authors = ["XueBin Li"]
+
+[dependencies]
+
+nature_common = {path = "../Nature-Common"}
+nature_db = {path = "../Nature-DB"}
+
+chrono = { version = "0.4", features = ["serde"] }
+
+# log
+log = "0.4.1"
+fern = "0.5"        # Simple, efficient logging
+
+
+
