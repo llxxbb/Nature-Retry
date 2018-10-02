@@ -9,10 +9,14 @@ nature_common = {path = "../Nature-Common"}
 nature_db = {path = "../Nature-DB"}
 
 chrono = { version = "0.4", features = ["serde"] }
-
+lazy_static = "1.0"
+hyper = "0.12"
 # log
 log = "0.4.1"
 fern = "0.5"        # Simple, efficient logging
+
+#config
+dotenv = "0.11"
 
 
 
