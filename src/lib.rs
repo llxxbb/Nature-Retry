@@ -25,7 +25,7 @@ pub fn start() {
                 let max_times = *MAX_RETRY_TIMES.deref();
                 if (r.retried_times as usize) < max_times {
                     send(r);
-                    let _ = DeliveryService.increase_times(r.id.clone());
+                    let _ = DeliveryService.increase_times_and_delay(r.id.clone(), delay);
                 } else {
                     let _ = DeliveryService.raw_to_error(&NatureError::ConverterEnvironmentError(format!("rtried over max times : {}", max_times)), r);
                 }
