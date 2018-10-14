@@ -32,6 +32,9 @@ pub fn start() {
             });
             sleep_by_records(rs.len())
         }
+        else {
+            sleep_by_records(0)
+        }
     }
 }
 
