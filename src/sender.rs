@@ -34,16 +34,18 @@ mod test {
     use nature_db::*;
     use super::*;
 
-        #[test]
+    //    #[test]
+    #[allow(dead_code)]
     fn test_send_ok() {
         let _ = setup_logger();
-        let delivery = RawDelivery::new(&"hello".to_string(), "/hello", 2).unwrap();
+        let delivery = RawTask::new(&"hello".to_string(), "/hello", 2).unwrap();
         let json = serde_json::to_string(&delivery).unwrap();
         send(json.clone());
         send(json)
     }
 
-    #[test]
+    //    #[test]
+    #[allow(dead_code)]
     fn test_send_400() {
         let _ = setup_logger();
         send("hello".to_string())

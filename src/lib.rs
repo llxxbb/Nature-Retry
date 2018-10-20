@@ -33,7 +33,7 @@ pub fn start() {
                         Ok(json) => {
                             send(json);
                             let delay = get_delay_by_times(r.retried_times);
-                            let _ = DeliveryService.increase_times_and_delay(&r.id, delay);
+                            let _ = DeliveryService.increase_times_and_delay(&r.task_id, delay);
                         }
                         Err(e) => {
                             let _ = DeliveryService.raw_to_error(&NatureError::from(e), r);
