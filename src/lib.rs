@@ -1,3 +1,7 @@
+#![feature(custom_attribute)]
+#![plugin(rocket_codegen)]
+#![feature(plugin)]
+
 extern crate dotenv;
 #[macro_use]
 extern crate lazy_static;
@@ -5,16 +9,18 @@ extern crate lazy_static;
 extern crate log;
 extern crate nature_common;
 extern crate nature_db;
+#[cfg(test)]
+extern crate rocket;
 extern crate serde_json;
 
 use cfg::*;
 use delay::*;
 use nature_common::*;
+use nature_common::util::setup_logger;
 use nature_db::*;
 use sender::*;
 use sleep::*;
 use std::ops::Deref;
-use nature_common::util::setup_logger;
 
 
 lazy_static! {
@@ -29,9 +35,8 @@ pub fn start() {
             let _ = rs.iter().map(|r| {
                 let max_times = *MAX_RETRY_TIMES.deref();
                 if (r.retried_times as usize) < max_times {
-                    match serde_json::to_string(r) {
-                        Ok(json) => {
-                            send(json);
+                    match send(r) {
+                        Ok(_) => {
                             let delay = get_delay_by_times(r.retried_times);
                             let _ = DeliveryService.increase_times_and_delay(&r.task_id, delay);
                         }
@@ -55,4 +60,5 @@ pub mod cfg;
 pub mod sleep;
 pub mod sender;
 mod delay;
-
+#[cfg(test)]
+pub mod web_mocker;
