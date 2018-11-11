@@ -30,6 +30,7 @@ lazy_static! {
 pub fn start() {
     dotenv::dotenv().ok();
     let _ = setup_logger();
+    let mut
     loop {
         if let Ok(rs) = DeliveryService.get_overdue(&FIRST_RETRY_INTERVAL.to_string()) {
             let _ = rs.iter().map(|r| {
