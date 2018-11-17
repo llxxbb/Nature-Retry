@@ -13,6 +13,8 @@ extern crate nature_db;
 extern crate rocket;
 extern crate serde_json;
 
+use std::ops::Deref;
+
 use cfg::*;
 use delay::*;
 use nature_common::*;
@@ -20,8 +22,6 @@ use nature_common::util::setup_logger;
 use nature_db::*;
 use sender::*;
 use sleep::*;
-use std::ops::Deref;
-
 
 lazy_static! {
     pub static ref DeliveryService: DeliveryDaoImpl = DeliveryDaoImpl{};
@@ -30,7 +30,7 @@ lazy_static! {
 pub fn start() {
     dotenv::dotenv().ok();
     let _ = setup_logger();
-    let mut
+    let mut last_delay: u64 = 0;
     loop {
         if let Ok(rs) = DeliveryService.get_overdue(&FIRST_RETRY_INTERVAL.to_string()) {
             let _ = rs.iter().map(|r| {
@@ -49,9 +49,9 @@ pub fn start() {
                     let _ = DeliveryService.raw_to_error(&NatureError::ConverterEnvironmentError(format!("rtried over max times : {}", max_times)), r);
                 }
             });
-            sleep_by_records(rs.len())
+            *last_delay = sleep_by_records(rs.len(), last_delay)
         } else {
-            sleep_by_records(0)
+            *last_delay = sleep_by_records(0, last_delay)
         }
     }
 }

@@ -1,11 +1,13 @@
 use std::thread::sleep;
 use std::time::Duration;
 
+use cfg::*;
+
 /// more recored less sleep
-pub fn sleep_by_records(records: usize, mut last_sleep: u64) -> u64 {
+pub fn sleep_by_records(records: usize, last_sleep: u64) -> u64 {
     if records == 0 {
         let last_sleep = last_sleep << 1;
-        if lazy_static >= MAX_SLEEP {
+        if last_sleep >= MAX_SLEEP {
             let last_sleep = MAX_SLEEP;
         }
     } else {
