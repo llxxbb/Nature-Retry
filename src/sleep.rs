@@ -4,19 +4,22 @@ use std::time::Duration;
 use cfg::*;
 
 /// more recored less sleep
-pub fn sleep_by_records(records: usize, last_sleep: u64) -> u64 {
-    if records == 0 {
-        let last_sleep = last_sleep << 1;
-        if last_sleep >= MAX_SLEEP {
-            let last_sleep = MAX_SLEEP;
+pub fn sleep_by_records(records: u32, last_sleep: u64) -> u64 {
+    let sl = match records {
+        0 => {
+            let last_sleep = last_sleep << 1;
+            if last_sleep >= *MAX_SLEEP {
+                *MAX_SLEEP
+            } else { last_sleep }
         }
-    } else {
-        let last_sleep = last_sleep >> 1;
-        if last_sleep <= MIN_SLEEP {
-            let last_sleep = MIN_SLEEP;
+        _ => {
+            let last_sleep = last_sleep >> 1;
+            if last_sleep <= *MIN_SLEEP {
+                *MIN_SLEEP
+            } else { last_sleep }
         }
-    }
-    sleep(Duration::from_millis(last_sleep));
+    };
+    sleep(Duration::from_millis(sl));
     return last_sleep;
 }
 

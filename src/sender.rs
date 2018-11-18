@@ -1,12 +1,14 @@
 extern crate reqwest;
 
-use cfg::*;
-use nature_common::*;
-use nature_db::RawTask;
-use self::reqwest::{Client, Error};
 use std::result::Result as RT;
 use std::thread::sleep;
 use std::time::Duration;
+
+use cfg::*;
+use nature_common::*;
+use nature_db::RawTask;
+
+use self::reqwest::{Client, Error};
 
 lazy_static! {
     static ref CLIENT : Client = Client::new();
@@ -37,12 +39,14 @@ pub fn send(task: &RawTask) -> Result<()> {
 mod test {
     extern crate serde_json;
 
-    use nature_db::*;
     use std::env;
     use std::thread;
     use std::time::Duration;
-    use super::*;
+
+    use nature_db::*;
     use web_mocker::test_env_init;
+
+    use super::*;
 
     #[test]
     #[allow(dead_code)]
@@ -51,7 +55,7 @@ mod test {
         thread::sleep(Duration::from_millis(100));
         env::set_var("NATURE_SERVER_ADDRESS", "http://localhost:8080/redo_task_ok");
         let delivery = RawTask::new(&"hello".to_string(), "/hello", 2).unwrap();
-        send(&delivery);
+        let _ = send(&delivery);
     }
 
     #[test]
@@ -61,6 +65,6 @@ mod test {
         thread::sleep(Duration::from_millis(100));
         env::set_var("NATURE_SERVER_ADDRESS", "http://localhost:8080/redo_task_false");
         let delivery = RawTask::new(&"hello".to_string(), "/hello", 2).unwrap();
-        send(&delivery);
+        let _ = send(&delivery);
     }
 }

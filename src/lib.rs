@@ -5,8 +5,6 @@
 extern crate dotenv;
 #[macro_use]
 extern crate lazy_static;
-#[macro_use]
-extern crate log;
 extern crate nature_common;
 extern crate nature_db;
 #[cfg(test)]
@@ -49,9 +47,9 @@ pub fn start() {
                     let _ = DeliveryService.raw_to_error(&NatureError::ConverterEnvironmentError(format!("rtried over max times : {}", max_times)), r);
                 }
             });
-            *last_delay = sleep_by_records(rs.len(), last_delay)
+            last_delay = sleep_by_records(rs.len() as u32, last_delay)
         } else {
-            *last_delay = sleep_by_records(0, last_delay)
+            last_delay = sleep_by_records(0, last_delay)
         }
     }
 }
