@@ -10,6 +10,9 @@ extern crate nature_db;
 #[cfg(test)]
 extern crate rocket;
 extern crate serde_json;
+#[macro_use]
+extern crate log;
+
 
 use std::ops::Deref;
 
