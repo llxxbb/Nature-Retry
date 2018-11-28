@@ -54,8 +54,8 @@ mod test {
         test_env_init();
         thread::sleep(Duration::from_millis(100));
         env::set_var("NATURE_SERVER_ADDRESS", "http://localhost:8080/redo_task_ok");
-        let delivery = RawTask::new(&"hello".to_string(), "/hello", 2).unwrap();
-        let _ = send(&delivery);
+        let task = RawTask::new(&"hello".to_string(), "/hello", 2).unwrap();
+        let _ = send(&task);
     }
 
     #[test]
@@ -64,7 +64,7 @@ mod test {
         test_env_init();
         thread::sleep(Duration::from_millis(100));
         env::set_var("NATURE_SERVER_ADDRESS", "http://localhost:8080/redo_task_false");
-        let delivery = RawTask::new(&"hello".to_string(), "/hello", 2).unwrap();
-        let _ = send(&delivery);
+        let task = RawTask::new(&"hello".to_string(), "/hello", 2).unwrap();
+        let _ = send(&task);
     }
 }
