@@ -22,7 +22,7 @@ pub fn sleep_by_records(records: u32, last_sleep: u64) -> u64 {
     };
     debug!("sleep {} seconds", sl);
     sleep(Duration::from_millis(sl));
-    return sl;
+    sl
 }
 
 #[cfg(test)]

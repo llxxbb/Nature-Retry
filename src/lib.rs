@@ -43,7 +43,7 @@ pub fn start() {
                             let _ = TaskService.increase_times_and_delay(&r.task_id, delay);
                         }
                         Err(e) => {
-                            let _ = TaskService.raw_to_error(&NatureError::from(e), r);
+                            let _ = TaskService.raw_to_error(&e, r);
                         }
                     }
                 } else {
