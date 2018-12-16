@@ -1,14 +1,13 @@
 #![feature(custom_attribute)]
-#![plugin(rocket_codegen)]
 #![feature(plugin)]
+#![feature(proc_macro_hygiene, decl_macro)]  // rocket
 
 extern crate dotenv;
 #[macro_use]
 extern crate lazy_static;
 extern crate nature_common;
 extern crate nature_db;
-#[cfg(test)]
-extern crate rocket;
+#[cfg(test)] #[macro_use]extern crate rocket;
 extern crate serde_json;
 #[macro_use]
 extern crate log;

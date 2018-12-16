@@ -4,7 +4,7 @@ use nature_common::*;
 use nature_common::util::setup_logger;
 use nature_db::RawTask;
 use rocket::{ignite, Rocket};
-use self::rocket_contrib::Json;
+use self::rocket_contrib::json::Json;
 use std::thread;
 
 pub fn rocket_server() -> Rocket {

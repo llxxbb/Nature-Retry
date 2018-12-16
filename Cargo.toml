@@ -22,9 +22,8 @@ dotenv = "0.11"
 
 #[dev-dependencies]
 # webup
-rocket = "0.3"
-rocket_codegen = "0.3"
-rocket_contrib = "0.3"
+rocket = "0.4"
+rocket_contrib = "0.4"
 
 
 
