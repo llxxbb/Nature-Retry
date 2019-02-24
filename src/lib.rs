@@ -24,7 +24,7 @@ use sender::*;
 use sleep::*;
 
 lazy_static! {
-    pub static ref TaskService: TaskDaoImpl = TaskDaoImpl{};
+    pub static ref TASK_SERVICE: TaskDaoImpl = TaskDaoImpl{};
 }
 
 pub fn start() {
@@ -32,21 +32,21 @@ pub fn start() {
     let _ = setup_logger();
     let mut last_delay: u64 = 0;
     loop {
-        if let Ok(rs) = TaskService.get_overdue(&FIRST_RETRY_INTERVAL.to_string()) {
+        if let Ok(rs) = TASK_SERVICE.get_overdue(&FIRST_RETRY_INTERVAL.to_string()) {
             let _ = rs.iter().map(|r| {
                 let max_times = *MAX_RETRY_TIMES.deref();
                 if (r.retried_times as usize) < max_times {
                     match send(r) {
                         Ok(_) => {
                             let delay = get_delay_by_times(r.retried_times);
-                            let _ = TaskService.increase_times_and_delay(&r.task_id, delay);
+                            let _ = TASK_SERVICE.increase_times_and_delay(&r.task_id, delay);
                         }
                         Err(e) => {
-                            let _ = TaskService.raw_to_error(&e, r);
+                            let _ = TASK_SERVICE.raw_to_error(&e, r);
                         }
                     }
                 } else {
-                    let _ = TaskService.raw_to_error(&NatureError::ConverterEnvironmentError(format!("rtried over max times : {}", max_times)), r);
+                    let _ = TASK_SERVICE.raw_to_error(&NatureError::ConverterEnvironmentError(format!("rtried over max times : {}", max_times)), r);
                 }
             });
             last_delay = sleep_by_records(rs.len() as u32, last_delay)
