@@ -32,25 +32,32 @@ pub fn start() {
     let _ = setup_logger();
     let mut last_delay: u64 = 0;
     loop {
+        debug!("start a new loop");
         if let Ok(rs) = TASK_SERVICE.get_overdue(&FIRST_RETRY_INTERVAL.to_string()) {
-            let _ = rs.iter().map(|r| {
+            debug!("load tasks number: {}", rs.len());
+            let _ = rs.iter().for_each(|r| {
+                debug!("process task: {:?}", r);
                 let max_times = *MAX_RETRY_TIMES.deref();
                 if (r.retried_times as usize) < max_times {
                     match send(r) {
                         Ok(_) => {
+                            debug!("send task succeed!");
                             let delay = get_delay_by_times(r.retried_times);
                             let _ = TASK_SERVICE.increase_times_and_delay(&r.task_id, delay);
                         }
                         Err(e) => {
+                            debug!("send task failed!");
                             let _ = TASK_SERVICE.raw_to_error(&e, r);
                         }
                     }
                 } else {
+                    debug!("tried too many times!");
                     let _ = TASK_SERVICE.raw_to_error(&NatureError::ConverterEnvironmentError(format!("rtried over max times : {}", max_times)), r);
                 }
             });
             last_delay = sleep_by_records(rs.len() as u32, last_delay)
         } else {
+            debug!("no task found, sleep!");
             last_delay = sleep_by_records(0, last_delay)
         }
     }

@@ -4,7 +4,7 @@ use std::result::Result as RT;
 use std::thread::sleep;
 use std::time::Duration;
 
-use cfg::*;
+use crate::cfg::*;
 use nature_common::*;
 use nature_db::RawTask;
 

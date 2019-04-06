@@ -1,7 +1,7 @@
 use std::thread::sleep;
 use std::time::Duration;
 
-use cfg::*;
+use crate::cfg::*;
 
 /// more recored less sleep
 pub fn sleep_by_records(records: u32, last_sleep: u64) -> u64 {

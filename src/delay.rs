@@ -1,4 +1,4 @@
-use cfg::*;
+use crate::cfg::*;
 use std::ops::Deref;
 
 /// Exponential change based on `FIRST_RETRY_INTERVAL`
