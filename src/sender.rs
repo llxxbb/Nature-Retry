@@ -44,7 +44,7 @@ mod test {
     use std::time::Duration;
 
     use nature_db::*;
-    use web_mocker::test_env_init;
+    use crate::web_mocker::test_env_init;
 
     use super::*;
 
