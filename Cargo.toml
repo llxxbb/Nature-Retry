@@ -5,9 +5,13 @@ authors = ["XueBin Li"]
 edition = "2018"
 workspace = "../Nature"
 
+description = "Retry the failed tasks for Nature"
+repository = "https://github.com/llxxbb/Nature-Retry"
+license = "MIT"
+
 [dependencies]
-nature_common = {path = "../Nature-Common"}
-nature_db = {path = "../Nature-DB"}
+nature_common = {path = "../Nature-Common", version = "0.0.1"}
+nature_db = {path = "../Nature-DB", features = ["sqlite"], version = "0.0.1"}
 
 chrono = { version = "0.4", features = ["serde"] }
 lazy_static = "1.0"
