@@ -1,6 +1,5 @@
 #![feature(custom_attribute)]
 #![feature(plugin)]
-#![feature(proc_macro_hygiene, decl_macro)]  // rocket
 
 extern crate dotenv;
 #[macro_use]
@@ -9,9 +8,6 @@ extern crate lazy_static;
 extern crate log;
 extern crate nature_common;
 extern crate nature_db;
-#[cfg(test)]
-#[macro_use]
-extern crate rocket;
 extern crate serde_json;
 
 
@@ -68,5 +64,3 @@ pub mod cfg;
 pub mod sleep;
 pub mod sender;
 mod delay;
-#[cfg(test)]
-pub mod web_mocker;

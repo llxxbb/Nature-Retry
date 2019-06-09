@@ -22,10 +22,6 @@ fern = "0.5"        # Simple, efficient logging
 #config
 dotenv = "0.11"
 
-#[dev-dependencies]
-# webup
-rocket = "0.4"
-rocket_contrib = "0.4"
 
 
 
