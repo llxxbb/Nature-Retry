@@ -16,7 +16,6 @@ use std::ops::Deref;
 use cfg::*;
 use delay::*;
 use nature_common::*;
-use nature_common::util::setup_logger;
 use nature_db::*;
 use sender::*;
 use sleep::*;

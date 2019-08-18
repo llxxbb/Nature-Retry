@@ -28,8 +28,8 @@ pub fn sleep_by_records(records: u32, last_sleep: u64) -> u64 {
 #[cfg(test)]
 mod test {
     use std::env;
-    use nature_common::util::setup_logger;
     use super::*;
+    use nature_common::setup_logger;
 
     #[test]
     fn sleep_max_test() {
