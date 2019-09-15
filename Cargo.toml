@@ -20,7 +20,7 @@ serde = "1.0"
 reqwest = "0.9"
 
 # log
-log = "0.4.1"
+log = "0.4"
 fern = "0.5"        # Simple, efficient logging
 
 #config
