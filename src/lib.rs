@@ -47,7 +47,7 @@ pub fn start() {
                     }
                 } else {
                     debug!("tried too many times!");
-                    let _ = TaskService::raw_to_error(&NatureError::ConverterEnvironmentError(format!("rtried over max times : {}", max_times)), r);
+                    let _ = TaskService::raw_to_error(&NatureError::EnvironmentError(format!("rtried over max times : {}", max_times)), r);
                 }
             });
             last_delay = sleep_by_records(rs.len() as u32, last_delay)
