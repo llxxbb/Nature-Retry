@@ -10,38 +10,51 @@ extern crate nature_db;
 extern crate serde_json;
 
 
+use std::env;
 use std::ops::Deref;
+
+use reqwest::blocking::Client;
 
 use cfg::*;
 use delay::*;
 use nature_common::*;
 use nature_db::*;
-use sender::*;
 use sleep::*;
 
 type TaskService = TaskDaoImpl;
+lazy_static! {
+    static ref CLIENT : Client = Client::new();
+}
 
 pub fn start() {
     dotenv::dotenv().ok();
     let _ = setup_logger();
     let mut last_delay: u64 = 0;
+    let base_delay = env::var("ASE_DELAY").unwrap_or_else(|_| "2".to_string()).parse::<i64>().unwrap();
+    let load_size = env::var("LOAD_SIZE").unwrap_or_else(|_| "100".to_string()).parse::<i64>().unwrap();
     loop {
-        debug!("start a new loop");
-        if let Ok(rs) = TaskService::get_overdue(&FIRST_RETRY_INTERVAL.to_string()) {
+        last_delay = once(last_delay, base_delay, load_size)
+    }
+}
+
+fn once(last_delay: u64, base_delay: i64, limit: i64) -> u64 {
+    debug!("start a new loop");
+    match TaskService::get_overdue(base_delay, limit) {
+        Ok(rs) => {
             debug!("load tasks number: {}", rs.len());
             let _ = rs.iter().for_each(|r| {
                 debug!("process task: {:?}", r);
                 let max_times = *MAX_RETRY_TIMES.deref();
                 if (r.retried_times as usize) < max_times {
-                    match send(r) {
+                    let req = CLIENT.post(&*NATURE_SERVER_ADDRESS).json(r).send();
+                    match req {
                         Ok(_) => {
                             debug!("send task succeed!");
                             let delay = get_delay_by_times(r.retried_times);
                             let _ = TaskService::increase_times_and_delay(&r.task_id, delay);
                         }
-                        Err(e) => {
-                            debug!("send task failed!");
-                            let _ = TaskService::raw_to_error(&e, r);
+                        Err(_) => {
+                            warn!("send task failed!");
                         }
                     }
                 } else {
@@ -49,10 +62,11 @@ pub fn start() {
                     let _ = TaskService::raw_to_error(&NatureError::EnvironmentError(format!("rtried over max times : {}", max_times)), r);
                 }
             });
-            last_delay = sleep_by_records(rs.len() as u32, last_delay)
-        } else {
-            debug!("no task found, sleep!");
-            last_delay = sleep_by_records(0, last_delay)
+            sleep_by_records(rs.len() as u32, last_delay)
+        }
+        Err(e) => {
+            warn!("found error: {}", e);
+            sleep_by_records(0, last_delay)
         }
     }
 }
@@ -60,5 +74,16 @@ pub fn start() {
 
 pub mod cfg;
 pub mod sleep;
-pub mod sender;
 mod delay;
+
+
+// #[cfg(test)]
+// mod test {
+//     use super::*;
+//     #[test]
+//     fn once_test() {
+//         dotenv::dotenv().ok();
+//         let _ = setup_logger();
+//         once(0);
+//     }
+// }

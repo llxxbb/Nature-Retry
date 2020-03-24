@@ -11,13 +11,13 @@ license = "MIT"
 
 [dependencies]
 nature_common = {path = "../Nature-Common", version = "0.0.3"}
-nature_db = {path = "../Nature-DB", features = ["sqlite"], version = "0.0.3"}
+nature_db = {path = "../Nature-DB", features = ["mysql"], version = "0.0.3"}
 
 chrono = { version = "0.4", features = ["serde"] }
 lazy_static = "1.0"
 serde_json = "1.0"
 serde = "1.0"
-reqwest = "0.9"
+reqwest = { version = "0.10", features = ["blocking", "json"] }
 
 # log
 log = "0.4"
