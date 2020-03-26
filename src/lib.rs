@@ -90,14 +90,14 @@ pub mod sleep;
 mod delay;
 
 
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn once_test() {
-        dotenv::dotenv().ok();
-        let _ = setup_logger();
-        once(0, 0, 1);
-    }
-}
+// #[cfg(test)]
+// mod test {
+//     use super::*;
+//
+//     #[test]
+//     fn once_test() {
+//         dotenv::dotenv().ok();
+//         let _ = setup_logger();
+//         once(0, 0, 1, 0);
+//     }
+// }
