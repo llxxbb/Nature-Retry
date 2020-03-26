@@ -32,42 +32,55 @@ pub fn start() {
     let mut last_delay: u64 = 0;
     let base_delay = env::var("ASE_DELAY").unwrap_or_else(|_| "2".to_string()).parse::<i64>().unwrap();
     let load_size = env::var("LOAD_SIZE").unwrap_or_else(|_| "100".to_string()).parse::<i64>().unwrap();
+    let clean_delay = env::var("CLEAN_DELAY").unwrap_or_else(|_| "2".to_string()).parse::<i64>().unwrap();
     loop {
-        last_delay = once(last_delay, base_delay, load_size)
+        last_delay = once(last_delay, base_delay, load_size, clean_delay)
     }
 }
 
-fn once(last_delay: u64, base_delay: i64, limit: i64) -> u64 {
+fn once(last_delay: u64, base_delay: i64, limit: i64, finish_delay: i64) -> u64 {
     debug!("start a new loop");
-    match TaskService::get_overdue(base_delay, limit) {
+    let mut len = 0;
+    let rs = TaskService::get_overdue(base_delay, limit);
+    match rs {
         Ok(rs) => {
+            len = rs.len();
             debug!("load tasks number: {}", rs.len());
-            let _ = rs.iter().for_each(|r| {
-                debug!("process task: {:?}", r);
-                let max_times = *MAX_RETRY_TIMES.deref();
-                if (r.retried_times as usize) < max_times {
-                    let req = CLIENT.post(&*NATURE_SERVER_ADDRESS).json(r).send();
-                    match req {
-                        Ok(_) => {
-                            debug!("send task succeed!");
-                            let delay = get_delay_by_times(r.retried_times);
-                            let _ = TaskService::increase_times_and_delay(&r.task_id, delay);
-                        }
-                        Err(_) => {
-                            warn!("send task failed!");
-                        }
-                    }
-                } else {
-                    debug!("tried too many times!");
-                    let _ = TaskService::raw_to_error(&NatureError::EnvironmentError(format!("rtried over max times : {}", max_times)), r);
-                }
-            });
-            sleep_by_records(rs.len() as u32, last_delay)
+            let _ = rs.iter().for_each(|r| process_delayed(&r));
         }
         Err(e) => {
-            warn!("found error: {}", e);
-            sleep_by_records(0, last_delay)
+            warn!("found error: {}", e)
         }
+    }
+    match TaskService::delete_finished(finish_delay) {
+        Ok(num) => info!("cleaned tasks : {}", num),
+        Err(e) => warn!("clean task failed: {}", e)
+    }
+    sleep_by_records(len as u32, last_delay)
+}
+
+
+fn process_delayed(r: &&RawTask) -> () {
+    debug!("process task: {:?}", r);
+    let max_times = *MAX_RETRY_TIMES.deref();
+    if (r.retried_times as usize) < max_times {
+        let req = CLIENT.post(&*NATURE_SERVER_ADDRESS).json(r).send();
+        match req {
+            Ok(_) => {
+                debug!("send task succeed!");
+                let delay = get_delay_by_times(r.retried_times);
+                // 注释掉下一行可用于并发测试
+                if let Err(e) = TaskService::increase_times_and_delay(&r.task_id, delay) {
+                    warn!("task update failed: {}", e);
+                }
+            }
+            Err(_) => {
+                warn!("send task failed!");
+            }
+        }
+    } else {
+        debug!("tried too many times!");
+        let _ = TaskService::raw_to_error(&NatureError::EnvironmentError(format!("rtried over max times : {}", max_times)), r);
     }
 }
 
@@ -77,13 +90,14 @@ pub mod sleep;
 mod delay;
 
 
-// #[cfg(test)]
-// mod test {
-//     use super::*;
-//     #[test]
-//     fn once_test() {
-//         dotenv::dotenv().ok();
-//         let _ = setup_logger();
-//         once(0);
-//     }
-// }
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn once_test() {
+        dotenv::dotenv().ok();
+        let _ = setup_logger();
+        once(0, 0, 1);
+    }
+}
