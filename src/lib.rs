@@ -30,9 +30,12 @@ pub fn start() {
     dotenv::dotenv().ok();
     let _ = setup_logger();
     let mut last_delay: u64 = 0;
-    let base_delay = env::var("ASE_DELAY").unwrap_or_else(|_| "2".to_string()).parse::<i64>().unwrap();
+    let base_delay = env::var("BASE_DELAY").unwrap_or_else(|_| "2".to_string()).parse::<i64>().unwrap();
     let load_size = env::var("LOAD_SIZE").unwrap_or_else(|_| "100".to_string()).parse::<i64>().unwrap();
     let clean_delay = env::var("CLEAN_DELAY").unwrap_or_else(|_| "2".to_string()).parse::<i64>().unwrap();
+    info!("----------- {} : {}------------", "base_delay", base_delay);
+    info!("----------- {} : {}------------", "load_size", load_size);
+    info!("----------- {} : {}------------", "clean_delay", clean_delay);
     loop {
         last_delay = once(last_delay, base_delay, load_size, clean_delay)
     }
