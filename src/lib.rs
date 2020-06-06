@@ -19,12 +19,11 @@ use nature_common::*;
 use nature_db::*;
 use sleep::*;
 
-type TaskService = TaskDaoImpl;
 lazy_static! {
     static ref CLIENT : Client = Client::new();
 }
 
-pub fn start() {
+pub async fn start() {
     dotenv::dotenv().ok();
     let _ = setup_logger();
     let mut last_delay: u64 = 0;
@@ -35,25 +34,27 @@ pub fn start() {
     info!("----------- {} : {}------------", "load_size", load_size);
     info!("----------- {} : {}------------", "clean_delay", clean_delay);
     loop {
-        last_delay = once(last_delay, base_delay, load_size, clean_delay)
+        last_delay = once(last_delay, base_delay, load_size, clean_delay).await
     }
 }
 
-fn once(last_delay: u64, base_delay: i64, limit: i64, finish_delay: i64) -> u64 {
+async fn once(last_delay: u64, base_delay: i64, limit: i64, finish_delay: i64) -> u64 {
     debug!("start a new loop");
     let mut len = 0;
-    let rs = TaskService::get_overdue(base_delay, limit);
+    let rs = D_T.get_overdue(base_delay, limit).await;
     match rs {
         Ok(rs) => {
             len = rs.len();
             debug!("load tasks number: {}", rs.len());
-            let _ = rs.iter().for_each(|r| process_delayed(&r));
+            for r in rs {
+                let _ = process_delayed(&r).await;
+            }
         }
         Err(e) => {
             warn!("found error: {}", e)
         }
     }
-    match TaskService::delete_finished(finish_delay) {
+    match D_T.delete_finished(finish_delay).await {
         Ok(num) => info!("cleaned tasks : {}", num),
         Err(e) => warn!("clean task failed: {}", e)
     }
@@ -61,7 +62,7 @@ fn once(last_delay: u64, base_delay: i64, limit: i64, finish_delay: i64) -> u64 
 }
 
 
-fn process_delayed(r: &&RawTask) -> () {
+async fn process_delayed(r: &RawTask) -> () {
     debug!("process task: {:?}", r);
     let max_times = *MAX_RETRY_TIMES.deref();
     if (r.retried_times as usize) < max_times {
@@ -71,7 +72,7 @@ fn process_delayed(r: &&RawTask) -> () {
                 debug!("send task succeed!");
                 let delay = get_delay_by_times(r.retried_times);
                 // 注释掉下一行可用于并发测试
-                if let Err(e) = TaskService::increase_times_and_delay(&r.task_id, delay) {
+                if let Err(e) = D_T.increase_times_and_delay(&r.task_id, delay).await {
                     warn!("task update failed: {}", e);
                 }
             }
@@ -81,7 +82,7 @@ fn process_delayed(r: &&RawTask) -> () {
         }
     } else {
         debug!("tried too many times!");
-        let _ = TaskService::raw_to_error(&NatureError::EnvironmentError(format!("rtried over max times : {}", max_times)), r);
+        let _ = D_T.raw_to_error(&NatureError::EnvironmentError(format!("rtried over max times : {}", max_times)), r);
     }
 }
 
