@@ -11,7 +11,7 @@ extern crate serde_json;
 use std::env;
 use std::ops::Deref;
 
-use reqwest::blocking::Client;
+use reqwest::Client;
 
 use cfg::*;
 use delay::*;
@@ -66,7 +66,7 @@ async fn process_delayed(r: &RawTask) -> () {
     debug!("process task: {:?}", r);
     let max_times = *MAX_RETRY_TIMES.deref();
     if (r.retried_times as usize) < max_times {
-        let req = CLIENT.post(&*NATURE_SERVER_ADDRESS).json(r).send();
+        let req = CLIENT.post(&*NATURE_SERVER_ADDRESS).json(r).send().await;
         match req {
             Ok(_) => {
                 debug!("send task succeed!");
