@@ -82,7 +82,7 @@ async fn process_delayed(r: &RawTask) -> () {
         }
     } else {
         debug!("tried too many times!");
-        let _ = D_T.raw_to_error(&NatureError::EnvironmentError(format!("rtried over max times : {}", max_times)), r);
+        let _ = D_T.raw_to_error(&NatureError::EnvironmentError(format!("rtried over max times : {}", max_times)), r).await;
     }
 }
 
